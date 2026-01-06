@@ -942,41 +942,194 @@ async function showCompletionPage() {
 
 // ====== Netlify数据上传 ======
 async function uploadDataToNetlify() {
-    // 计算正确率统计
-  const accuracyStats = calculateAccuracyStats();
   if (isUploading) return false;
   isUploading = true;
   
   try {
-    // 准备所有数据
-    const allData = {
-      participantData,
-      experimentData: {
+    // ========== 1. 重组数据 ==========
+    const organizedData = {
+      // 基础信息
+      participant: {
+        id: participantData.participantId,
+        startTime: participantData.startTime,
+        endTime: new Date().toISOString()
+      },
+      
+      // 实验设置
+      experiment: {
+        totalVideos: 4,
+        totalTrials: 8,
         versionOrder: experimentData.versionOrder,
         firstWatchOrder: experimentData.firstWatchOrder,
         secondWatchOrder: experimentData.secondWatchOrder,
-        generatedAt: experimentData.generatedAt,
-        configVersion: experimentData.configVersion
+        generatedAt: experimentData.generatedAt
       },
-      responseData,
-      accuracyStats,  // 添加正确率统计
-      completionTime: new Date().toISOString()
+      
+      // 视频观看记录（按视频分组）
+      videoWatching: {},
+      
+      // 问题响应（按视频和类型分组）
+      responses: {},
+      
+      // 正确率统计
+      accuracy: {
+        overall: { total: 0, correct: 0, accuracy: 0 },
+        byTask: {
+          temporal: { total: 0, correct: 0, accuracy: 0 },
+          afc: { total: 0, correct: 0, accuracy: 0 }
+        },
+        byTemporalCategory: {
+          "Boundary-Boundary": { total: 0, correct: 0, accuracy: 0 },
+          "Boundary-Within": { total: 0, correct: 0, accuracy: 0 },
+          "Within-Within": { total: 0, correct: 0, accuracy: 0 }
+        }
+      }
     };
     
-    const formData = new FormData();
-    formData.append('form-name', EXPERIMENT_CONFIG.netlifyForm.name || 'memory-task-pilot');
-    formData.append('participant_id', participantData.participantId);
-    formData.append('experiment_data', JSON.stringify(experimentData));
-    formData.append('response_data', JSON.stringify(responseData));
-    formData.append(EXPERIMENT_CONFIG.netlifyForm.honeypotField || 'bot-field', '');
+    // ========== 2. 处理视频观看数据 ==========
+    responseData
+      .filter(r => r.type === 'video_watching')
+      .forEach(record => {
+        if (!organizedData.videoWatching[record.videoId]) {
+          organizedData.videoWatching[record.videoId] = [];
+        }
+        organizedData.videoWatching[record.videoId].push({
+          watch: record.watchNumber,
+          version: record.version,
+          start: record.startTime,
+          end: record.endTime,
+          duration: Math.round((new Date(record.endTime) - new Date(record.startTime)) / 1000)
+        });
+      });
     
+    // ========== 3. 处理问题响应数据并计算统计 ==========
+    responseData
+      .filter(r => r.type === 'question_response')
+      .forEach(response => {
+        const videoId = response.videoId;
+        
+        // 初始化视频数据结构
+        if (!organizedData.responses[videoId]) {
+          organizedData.responses[videoId] = {
+            temporal: [],
+            afc: []
+          };
+        }
+        
+        // 创建响应记录
+        const record = {
+          qid: response.questionId,
+          type: response.questionType,
+          category: response.category,
+          selected: response.selectedAnswer,
+          correct: response.correctAnswer,
+          isCorrect: response.isCorrect,
+          rt: response.reactionTime,
+          time: response.responseTime
+        };
+        
+        // 按类型添加到视频
+        if (response.questionType === 'temporal') {
+          organizedData.responses[videoId].temporal.push(record);
+        } else {
+          organizedData.responses[videoId].afc.push(record);
+        }
+        
+        // ========== 4. 计算统计 ==========
+        // 总体统计
+        organizedData.accuracy.overall.total++;
+        if (response.isCorrect) organizedData.accuracy.overall.correct++;
+        
+        // 按任务类型统计
+        if (response.questionType === 'temporal') {
+          organizedData.accuracy.byTask.temporal.total++;
+          if (response.isCorrect) organizedData.accuracy.byTask.temporal.correct++;
+          
+          // 按temporal类别统计
+          if (response.category && organizedData.accuracy.byTemporalCategory[response.category]) {
+            organizedData.accuracy.byTemporalCategory[response.category].total++;
+            if (response.isCorrect) organizedData.accuracy.byTemporalCategory[response.category].correct++;
+          }
+        } else {
+          organizedData.accuracy.byTask.afc.total++;
+          if (response.isCorrect) organizedData.accuracy.byTask.afc.correct++;
+        }
+      });
+    
+    // ========== 5. 计算正确率百分比 ==========
+    const calcPercent = (correct, total) => 
+      total > 0 ? ((correct / total) * 100).toFixed(2) : "0.00";
+    
+    organizedData.accuracy.overall.accuracy = 
+      calcPercent(organizedData.accuracy.overall.correct, organizedData.accuracy.overall.total);
+    
+    organizedData.accuracy.byTask.temporal.accuracy = 
+      calcPercent(organizedData.accuracy.byTask.temporal.correct, organizedData.accuracy.byTask.temporal.total);
+    
+    organizedData.accuracy.byTask.afc.accuracy = 
+      calcPercent(organizedData.accuracy.byTask.afc.correct, organizedData.accuracy.byTask.afc.total);
+    
+    // 计算temporal各子类别正确率
+    Object.keys(organizedData.accuracy.byTemporalCategory).forEach(category => {
+      const cat = organizedData.accuracy.byTemporalCategory[category];
+      cat.accuracy = calcPercent(cat.correct, cat.total);
+    });
+    
+    // ========== 6. 准备Netlify表单数据 ==========
+    const formData = new FormData();
+    formData.append('form-name', 'memory-task-pilot');
+    
+    // 分开字段提交，便于Netlify后台查看
+    formData.append('participant_id', participantData.participantId);
+    formData.append('start_time', participantData.startTime);
+    formData.append('end_time', new Date().toISOString());
+    
+    // 实验设置（JSON格式）
+    formData.append('experiment_setup', JSON.stringify({
+      videos: Object.keys(organizedData.videoWatching),
+      versionOrder: organizedData.experiment.versionOrder,
+      firstWatchOrder: organizedData.experiment.firstWatchOrder,
+      secondWatchOrder: organizedData.experiment.secondWatchOrder
+    }, null, 2));
+    
+    // 正确率统计（JSON格式，最重要）
+    formData.append('accuracy_stats', JSON.stringify(organizedData.accuracy, null, 2));
+    
+    // 简化的响应摘要（JSON格式）
+    const responseSummary = {};
+    Object.keys(organizedData.responses).forEach(videoId => {
+      responseSummary[videoId] = {
+        temporalQuestions: organizedData.responses[videoId].temporal.length,
+        afcQuestions: organizedData.responses[videoId].afc.length,
+        temporalCorrect: organizedData.responses[videoId].temporal.filter(q => q.isCorrect).length,
+        afcCorrect: organizedData.responses[videoId].afc.filter(q => q.isCorrect).length
+      };
+    });
+    formData.append('response_summary', JSON.stringify(responseSummary, null, 2));
+    
+    // 完整数据（备份用）
+    formData.append('complete_data', JSON.stringify(organizedData, null, 2));
+    
+    // Honeypot字段
+    formData.append('bot-field', '');
+    
+    // ========== 7. 检查数据大小 ==========
+    const dataSize = new Blob([JSON.stringify(organizedData)]).size / 1024;
+    console.log(`数据大小: ${dataSize.toFixed(2)} KB`);
+    
+    if (dataSize > 90) {
+      console.warn('⚠️ 数据接近Netlify限制，已简化部分字段');
+    }
+    
+    // ========== 8. 提交到Netlify ==========
     const response = await fetch('/', {
       method: 'POST',
       body: formData
     });
     
     if (response.ok) {
-      console.log('✅ 数据已成功提交到Netlify');
+      console.log('✅ 数据成功提交到Netlify');
+      console.log('📊 正确率统计:', organizedData.accuracy);
       return true;
     } else {
       console.error('❌ Netlify提交失败:', response.status);

@@ -166,16 +166,6 @@ const EXPERIMENT_CONFIG = {
       // 3-AFC问题
       afcQuestions: [
         { 
-          id: "a2", 
-          question: "In this video, What are the fallen component?", 
-          options: [
-            { id: "A", image: "stimuli/afc/Clocky/q1/pointer.png" },
-            { id: "B", image: "stimuli/afc/Clocky/q1/spring.png" },
-            { id: "C", image: "stimuli/afc/Clocky/q1/ring.png" }
-          ], 
-          correct: "B" 
-        },
-        { 
           id: "a1", 
           question: "Which character's component has fallen off?", 
           options: [
@@ -184,6 +174,16 @@ const EXPERIMENT_CONFIG = {
             { id: "C", image: "stimuli/afc/Clocky/q2/lamp.png" }
           ], 
           correct: "A" 
+        },
+        { 
+          id: "a2", 
+          question: "In this video, What are the fallen component?", 
+          options: [
+            { id: "A", image: "stimuli/afc/Clocky/q1/pointer.png" },
+            { id: "B", image: "stimuli/afc/Clocky/q1/spring.png" },
+            { id: "C", image: "stimuli/afc/Clocky/q1/ring.png" }
+          ], 
+          correct: "B" 
         },
         { 
           id: "a3", 
