@@ -393,9 +393,19 @@
 <!-- Netlify Form -->
 <form id="netlify-data-form" style="display: none;" netlify netlify-honeypot="bot-field" name="memory-task-pilot">
   <input type="hidden" name="form-name" value="memory-task-pilot">
+  
+  <!-- 基础字段 -->
   <input type="hidden" name="participant_id">
-  <input type="hidden" name="experiment_data">
-  <input type="hidden" name="response_data">
+  <input type="hidden" name="start_time">
+  <input type="hidden" name="end_time">
+  
+  <!-- 你正在使用的数据字段 -->
+  <input type="hidden" name="experiment_setup">
+  <input type="hidden" name="accuracy_stats">
+  <input type="hidden" name="response_summary">
+  <input type="hidden" name="complete_data">
+  
+  <!-- Honeypot -->
   <input type="text" name="bot-field" style="display: none;">
 </form>
 
