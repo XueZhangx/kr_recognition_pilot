@@ -481,14 +481,13 @@ function generateRandomizedExperiment() {
     });
     shuffleArray(allTemporalQuestions).forEach(q => questions.push(q));
     
-    // 3-AFC问题，随机排序
-    const afcQuestions = [...videoConfig.afcQuestions];
-    shuffleArray(afcQuestions).forEach(q => {
-      questions.push({
+    // 保持afc问题原有顺序
+    videoConfig.afcQuestions.forEach(q => {  // 直接forEach，不shuffle
+    questions.push({
         type: 'afc',
         videoId: video.id,
         ...q
-      });
+    });
     });
   });
   
