@@ -618,13 +618,13 @@ function playNextVideo() {
     // 播放视频
     videoPlayer.play();
     
-    // 3分钟后自动结束
-    setTimeout(() => {
-      if (!videoPlayer.ended) {
-        videoPlayer.pause();
-        endCurrentVideo();
-      }
-    }, trial.duration * 1000);
+    // // 3分钟后自动结束
+    // setTimeout(() => {
+    //   if (!videoPlayer.ended) {
+    //     videoPlayer.pause();
+    //     endCurrentVideo();
+    //   }
+    // }, trial.duration * 1000);
   };
   
   document.addEventListener('keydown', startHandler);
