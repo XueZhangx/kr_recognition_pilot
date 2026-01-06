@@ -42,25 +42,27 @@
     width: 100vw;
     height: 100vh;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
+    align-items: center;     /* 水平居中 */
+    justify-content: center; /* 垂直居中 */
+    overflow: auto;          /* 如果屏幕太小可以滚动 */
+    }
   
   #videoBox {
-    width: 90%;
-    max-width: 1200px;
-    height: 70vh;
+    width: auto;        /* 自动宽度，适应视频尺寸 */
+    height: auto;       /* 自动高度，适应视频尺寸 */
+    min-width: 1280px;  /* 最小宽度确保视频完整 */
+    min-height: 720px;  /* 最小高度确保视频完整 */
     display: flex;
     align-items: center;
     justify-content: center;
-  }
+    }
   
-  video {
-    width: 100%;
-    max-height: 100%;
+    video {
+    width: 1280px;      /* 固定宽度 */
+    height: 720px;      /* 固定高度 */
     pointer-events: none !important;
     user-select: none !important;
-  }
+    }
   
   /* 提示信息 */
   #prompt {
@@ -96,6 +98,7 @@
     display: none;
   }
   
+
   /* 测试阶段界面 */
   #testContainer {
     display: none;
@@ -316,6 +319,20 @@
   <div id="prompt">加载中...</div>
 </div>
 
+<!-- 过渡页面 -->
+<div id="transitionPage" style="display: none;">
+  <div style="text-align: center; padding: 50px;">
+    <h2>视频观看阶段已完成</h2>
+    <p style="font-size: 24px; margin: 30px 0;">接下来是记忆测试部分</p>
+    <p style="font-size: 20px; color: #FF9800;">请准备好后按任意键开始测试</p>
+    <p style="font-size: 16px; color: #ccc; margin-top: 30px;">
+      测试包含两种类型的问题：<br>
+      1. 时序判断：选择哪个画面先出现<br>
+      2. 三选一：根据问题选择正确答案
+    </p>
+  </div>
+</div>
+
 <!-- 3. 测试阶段 -->
 <div id="testContainer">
   <div class="progress-bar">
@@ -329,14 +346,14 @@
   <div id="temporalQuestion" class="question-container">
     <div class="question-text">哪个画面先出现？</div>
     <div class="temporal-options">
-      <div class="option" data-value="A">
+      <!-- <div class="option" data-value="A">
         <img id="temporalImgA" src="" alt="选项A">
         <div class="option-label">选项A</div>
       </div>
       <div class="option" data-value="B">
         <img id="temporalImgB" src="" alt="选项B">
         <div class="option-label">选项B</div>
-      </div>
+      </div> -->
     </div>
     <button id="confirmTemporalBtn" class="confirm-btn" disabled>确认选择</button>
   </div>
@@ -347,15 +364,15 @@
     <div class="afc-options">
       <div class="option" data-value="A">
         <img id="afcImgA" src="" alt="选项A">
-        <div class="option-label">选项A</div>
+        <!-- <div class="option-label">选项A</div> -->
       </div>
       <div class="option" data-value="B">
         <img id="afcImgB" src="" alt="选项B">
-        <div class="option-label">选项B</div>
+        <!-- <div class="option-label">选项B</div> -->
       </div>
       <div class="option" data-value="C">
         <img id="afcImgC" src="" alt="选项C">
-        <div class="option-label">选项C</div>
+        <!-- <div class="option-label">选项C</div> -->
       </div>
     </div>
     <button id="confirmAfcBtn" class="confirm-btn" disabled>确认选择</button>
@@ -375,7 +392,7 @@
 
 <!-- Netlify Form -->
 <form id="netlify-data-form" style="display: none;" netlify netlify-honeypot="bot-field" name="memory-task-pilot">
-  <input type="hidden" name="form-name" value="visual-memory-experiment">
+  <input type="hidden" name="form-name" value="memory-task-pilot">
   <input type="hidden" name="participant_id">
   <input type="hidden" name="experiment_data">
   <input type="hidden" name="response_data">
@@ -655,8 +672,20 @@ function showRestTimer() {
 }
 
 function endVideoPhase() {
+  // 隐藏视频容器
   document.getElementById('videoContainer').style.display = 'none';
-  startTestPhase();
+  
+  // 显示过渡页面
+  document.getElementById('transitionPage').style.display = 'block';
+  
+  // 等待用户按键开始测试
+  const startTestHandler = (e) => {
+    document.removeEventListener('keydown', startTestHandler);
+    document.getElementById('transitionPage').style.display = 'none';
+    startTestPhase();
+  };
+  
+  document.addEventListener('keydown', startTestHandler);
 }
 
 // ====== 测试阶段 ======
@@ -801,6 +830,91 @@ function endTestPhase() {
   showCompletionPage();
 }
 
+function calculateAccuracyStats() {
+  const stats = {
+    overall: {
+      total: 0,
+      correct: 0,
+      accuracy: 0
+    },
+    byTaskType: {
+      temporal: {
+        total: 0,
+        correct: 0,
+        accuracy: 0
+      },
+      afc: {
+        total: 0,
+        correct: 0,
+        accuracy: 0
+      }
+    },
+    byTemporalCategory: {
+      "Boundary-Boundary": {
+        total: 0,
+        correct: 0,
+        accuracy: 0
+      },
+      "Boundary-Within": {
+        total: 0,
+        correct: 0,
+        accuracy: 0
+      },
+      "Within-Within": {
+        total: 0,
+        correct: 0,
+        accuracy: 0
+      }
+    }
+  };
+  
+  // 遍历所有问题响应
+  responseData.forEach(response => {
+    if (response.type === 'question_response') {
+      // 总体统计
+      stats.overall.total++;
+      if (response.isCorrect) stats.overall.correct++;
+      
+      // 按任务类型统计
+      if (response.questionType === 'temporal') {
+        stats.byTaskType.temporal.total++;
+        if (response.isCorrect) stats.byTaskType.temporal.correct++;
+        
+        // 按temporal类别统计
+        const category = response.category;
+        if (category && stats.byTemporalCategory[category]) {
+          stats.byTemporalCategory[category].total++;
+          if (response.isCorrect) stats.byTemporalCategory[category].correct++;
+        }
+      } else if (response.questionType === 'afc') {
+        stats.byTaskType.afc.total++;
+        if (response.isCorrect) stats.byTaskType.afc.correct++;
+      }
+    }
+  });
+  
+  // 计算正确率（百分比）
+  stats.overall.accuracy = stats.overall.total > 0 ? 
+    (stats.overall.correct / stats.overall.total * 100).toFixed(2) : 0;
+  
+  stats.byTaskType.temporal.accuracy = stats.byTaskType.temporal.total > 0 ? 
+    (stats.byTaskType.temporal.correct / stats.byTaskType.temporal.total * 100).toFixed(2) : 0;
+  
+  stats.byTaskType.afc.accuracy = stats.byTaskType.afc.total > 0 ? 
+    (stats.byTaskType.afc.correct / stats.byTaskType.afc.total * 100).toFixed(2) : 0;
+  
+  // 计算每个temporal类别的正确率
+  Object.keys(stats.byTemporalCategory).forEach(category => {
+    const catStats = stats.byTemporalCategory[category];
+    catStats.accuracy = catStats.total > 0 ? 
+      (catStats.correct / catStats.total * 100).toFixed(2) : 0;
+  });
+  
+  return stats;
+}
+
+
+
 // ====== 完成页面 ======
 async function showCompletionPage() {
   document.getElementById('completion').style.display = 'flex';
@@ -828,6 +942,8 @@ async function showCompletionPage() {
 
 // ====== Netlify数据上传 ======
 async function uploadDataToNetlify() {
+    // 计算正确率统计
+  const accuracyStats = calculateAccuracyStats();
   if (isUploading) return false;
   isUploading = true;
   
@@ -843,6 +959,7 @@ async function uploadDataToNetlify() {
         configVersion: experimentData.configVersion
       },
       responseData,
+      accuracyStats,  // 添加正确率统计
       completionTime: new Date().toISOString()
     };
     

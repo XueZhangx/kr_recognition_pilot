@@ -166,7 +166,7 @@ const EXPERIMENT_CONFIG = {
       // 3-AFC问题
       afcQuestions: [
         { 
-          id: "a1", 
+          id: "a2", 
           question: "In this video, What are the fallen component?", 
           options: [
             { id: "A", image: "stimuli/afc/Clocky/q1/pointer.png" },
@@ -176,7 +176,7 @@ const EXPERIMENT_CONFIG = {
           correct: "B" 
         },
         { 
-          id: "a2", 
+          id: "a1", 
           question: "Which character's component has fallen off?", 
           options: [
             { id: "A", image: "stimuli/afc/Clocky/q2/clock.png" },
@@ -389,7 +389,7 @@ const EXPERIMENT_CONFIG = {
   
   // Netlify表单配置
   netlifyForm: {
-    name: "visual-memory-experiment",
+    name: "memory-task-pilot",
     honeypotField: "bot-field"
   },
   
