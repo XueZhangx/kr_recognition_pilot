@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>视觉记忆实验</title>
+<style>
+  body {
+    margin: 0;
+    background: #000;
+    color: #fff;
+    font-family: 'Microsoft YaHei', 'SimHei', Arial, sans-serif;
+    overflow-x: hidden;
+  }
+  
+  /* 同意书页面 */
+  #consent {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #000;
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow-y: auto;
+  }
+  
+  .consent-content {
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 30px;
+    background: #222;
+    border-radius: 10px;
+    border: 1px solid #444;
+  }
+  
+  /* 视频播放界面 */
+  #videoContainer {
+    display: none;
+    width: 100vw;
+    height: 100vh;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  #videoBox {
+    width: 90%;
+    max-width: 1200px;
+    height: 70vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  video {
+    width: 100%;
+    max-height: 100%;
+    pointer-events: none !important;
+    user-select: none !important;
+  }
+  
+  /* 提示信息 */
+  #prompt {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 26px;
+    text-align: center;
+    line-height: 1.5;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 30px;
+    border-radius: 10px;
+    display: none;
+    z-index: 100;
+  }
+  
+  #progressInfo {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    font-size: 18px;
+  }
+  
+  /* 休息倒计时 */
+  #restTimer {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 32px;
+    color: #4CAF50;
+    display: none;
+  }
+  
+  /* 测试阶段界面 */
+  #testContainer {
+    display: none;
+    width: 100vw;
+    min-height: 100vh;
+    padding: 40px 20px;
+    box-sizing: border-box;
+  }
+  
+  .question-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: none;
+  }
+  
+  .question-text {
+    font-size: 28px;
+    text-align: center;
+    margin-bottom: 40px;
+    color: #fff;
+  }
+  
+  /* Temporal Order 选项（两张图片） */
+  .temporal-options {
+    display: flex;
+    justify-content: center;
+    gap: 100px;
+    margin: 40px 0;
+  }
+  
+  /* 3-AFC 选项（三张图片） */
+  .afc-options {
+    display: flex;
+    justify-content: center;
+    gap: 60px;
+    margin: 40px 0;
+  }
+  
+  .option {
+    cursor: pointer;
+    transition: all 0.3s;
+    text-align: center;
+  }
+  
+  .option:hover {
+    transform: scale(1.05);
+  }
+  
+  .option.selected {
+    outline: 5px solid #4CAF50;
+    border-radius: 5px;
+  }
+  
+  .option img {
+    width: 400px;
+    height: 225px;
+    object-fit: cover;
+    border-radius: 5px;
+  }
+  
+  .option-label {
+    font-size: 20px;
+    margin-top: 10px;
+    color: #ccc;
+  }
+  
+  .confirm-btn {
+    display: block;
+    margin: 40px auto;
+    padding: 15px 40px;
+    font-size: 22px;
+    background: #2196F3;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .confirm-btn:disabled {
+    background: #666;
+    cursor: not-allowed;
+  }
+  
+  /* 进度条 */
+  .progress-bar {
+    width: 80%;
+    max-width: 800px;
+    height: 10px;
+    background: #333;
+    border-radius: 5px;
+    margin: 20px auto;
+    overflow: hidden;
+  }
+  
+  .progress-fill {
+    height: 100%;
+    background: #4CAF50;
+    width: 0%;
+    transition: width 0.3s;
+  }
+  
+  .progress-text {
+    text-align: center;
+    font-size: 18px;
+    margin-top: 10px;
+    color: #ccc;
+  }
+  
+  /* 完成页面 */
+  #completion {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #000;
+    z-index: 2000;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .success-msg {
+    color: #4CAF50;
+    font-size: 24px;
+    margin: 20px 0;
+  }
+  
+  .wait-warning {
+    color: #FF9800;
+    font-size: 20px;
+    margin-bottom: 20px;
+  }
+  
+  /* 输入框样式 */
+  .input-group {
+    margin: 20px 0;
+  }
+  
+  .input-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+  }
+  
+  .input-group input {
+    padding: 10px;
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 16px;
+  }
+  
+  /* 按钮样式 */
+  button {
+    padding: 12px 25px;
+    font-size: 18px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background: #45a049;
+  }
+</style>
+</head>
+<body>
+
+<!-- 1. 同意书页面 -->
+<div id="consent">
+  <div class="consent-content">
+    <h2>视觉记忆实验</h2>
+    <p>感谢您参与本次心理学实验！</p>
+    
+    <div style="background:#333;padding:15px;border-radius:5px;margin:20px 0;">
+      <h3 style="margin-top:0;">实验流程：</h3>
+      <ol style="line-height: 1.6;">
+        <li><strong>第一阶段：观看视频</strong>：观看8个短视频（每个约3分钟）</li>
+        <li><strong>第二阶段：回答问题</strong>：回答关于视频内容的记忆测试题</li>
+      </ol>
+      
+      <h3>注意事项：</h3>
+      <ul style="line-height: 1.6;">
+        <li>请在安静、无干扰的环境下完成实验</li>
+        <li>实验大约需要40-50分钟</li>
+        <li>请确保网络连接稳定</li>
+        <li>实验中途不要刷新或关闭页面</li>
+        <li>请集中注意力观看视频</li>
+      </ul>
+    </div>
+    
+    <div class="input-group">
+      <label for="participantName" style="color: #4CAF50;">参与者编号：</label>
+      <input type="text" id="participantName" placeholder="请输入分配给你的编号">
+    </div>
+    
+    <div style="margin-top: 30px; text-align: center;">
+      <button id="agreeBtn">我同意并开始实验</button>
+    </div>
+  </div>
+</div>
+
+<!-- 2. 视频播放阶段 -->
+<div id="videoContainer">
+  <div id="progressInfo">
+    进度: <span id="currentVideoNum">0</span>/8
+  </div>
+  
+  <div id="videoBox">
+    <video id="videoPlayer" controls></video>
+  </div>
+  
+  <div id="restTimer"></div>
+  
+  <div id="prompt">加载中...</div>
+</div>
+
+<!-- 3. 测试阶段 -->
+<div id="testContainer">
+  <div class="progress-bar">
+    <div class="progress-fill"></div>
+  </div>
+  <div class="progress-text">
+    题目进度: <span id="currentQuestionNum">0</span>/<span id="totalQuestions">0</span>
+  </div>
+  
+  <!-- Temporal Order 题目 -->
+  <div id="temporalQuestion" class="question-container">
+    <div class="question-text">哪个画面先出现？</div>
+    <div class="temporal-options">
+      <div class="option" data-value="A">
+        <img id="temporalImgA" src="" alt="选项A">
+        <div class="option-label">选项A</div>
+      </div>
+      <div class="option" data-value="B">
+        <img id="temporalImgB" src="" alt="选项B">
+        <div class="option-label">选项B</div>
+      </div>
+    </div>
+    <button id="confirmTemporalBtn" class="confirm-btn" disabled>确认选择</button>
+  </div>
+  
+  <!-- 3-AFC 题目 -->
+  <div id="afcQuestion" class="question-container">
+    <div class="question-text" id="afcQuestionText"></div>
+    <div class="afc-options">
+      <div class="option" data-value="A">
+        <img id="afcImgA" src="" alt="选项A">
+        <div class="option-label">选项A</div>
+      </div>
+      <div class="option" data-value="B">
+        <img id="afcImgB" src="" alt="选项B">
+        <div class="option-label">选项B</div>
+      </div>
+      <div class="option" data-value="C">
+        <img id="afcImgC" src="" alt="选项C">
+        <div class="option-label">选项C</div>
+      </div>
+    </div>
+    <button id="confirmAfcBtn" class="confirm-btn" disabled>确认选择</button>
+  </div>
+</div>
+
+<!-- 4. 完成页面 -->
+<div id="completion">
+  <h2>实验完成！</h2>
+  <div id="waitMsg" class="wait-warning">
+    数据正在提交，请勿关闭页面... <span id="countdown" style="font-size: 24px; color: white;">5</span>
+  </div>
+  <div id="finalMsg" class="success-msg" style="display: none;">
+    ✅ 数据已成功提交，感谢您的参与！
+  </div>
+</div>
+
+<!-- Netlify Form -->
+<form id="netlify-data-form" style="display: none;" netlify netlify-honeypot="bot-field" name="memory-task-pilot">
+  <input type="hidden" name="form-name" value="visual-memory-experiment">
+  <input type="hidden" name="participant_id">
+  <input type="hidden" name="experiment_data">
+  <input type="hidden" name="response_data">
+  <input type="text" name="bot-field" style="display: none;">
+</form>
+
+<!-- 引入配置文件 -->
+<script src="config.js"></script>
+
+<script>
+// ====== 全局变量 ======
+let participantData = {};
+let experimentData = {};
+let responseData = [];
+let currentTrialIndex = 0;
+let currentQuestionIndex = 0;
+let questionStartTime = 0;
+let isUploading = false;
+
+// 从配置文件获取常量
+const REST_DURATION = EXPERIMENT_CONFIG.restDuration || 10;
+const STORAGE_KEY = EXPERIMENT_CONFIG.storageKey || 'visual_memory_exp_v1';
+
+// ====== 工具函数 ======
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
+function arraysEqual(a, b) {
+  if (a.length !== b.length) return false;
+  return a.every((val, index) => val.id === b[index].id);
+}
+
+// ====== 随机化算法 ======
+function generateRandomizedExperiment() {
+  const videos = [...EXPERIMENT_CONFIG.videos];
+  
+  // 1. 打乱视频顺序
+  shuffleArray(videos);
+  
+  // 2. 分配版本顺序：前2个先intact后disrupted，后2个先disrupted后intact
+  const versionOrder = {};
+  videos.forEach((video, index) => {
+    versionOrder[video.id] = index < 2 ? ['intact', 'disrupted'] : ['disrupted', 'intact'];
+  });
+  
+  // 3. 生成第一次观看顺序
+  const firstWatchOrder = shuffleArray([...videos]);
+  
+  // 4. 生成第二次观看顺序（确保与第一次不同）
+  let secondWatchOrder;
+  do {
+    secondWatchOrder = shuffleArray([...videos]);
+  } while (arraysEqual(firstWatchOrder, secondWatchOrder));
+  
+  // 5. 构建完整的试验序列
+  const trials = [];
+  
+  // 第一次观看
+  firstWatchOrder.forEach(video => {
+    const version = versionOrder[video.id][0];
+    trials.push({
+      videoId: video.id,
+      version: version,
+      watchNumber: 1,
+      path: version === 'intact' ? video.intactPath : video.disruptedPath,
+      duration: EXPERIMENT_CONFIG.videoDuration || 180
+    });
+  });
+  
+  // 第二次观看
+  secondWatchOrder.forEach(video => {
+    const version = versionOrder[video.id][1];
+    trials.push({
+      videoId: video.id,
+      version: version,
+      watchNumber: 2,
+      path: version === 'intact' ? video.intactPath : video.disruptedPath,
+      duration: EXPERIMENT_CONFIG.videoDuration || 180
+    });
+  });
+  
+  // 6. 生成测试问题序列
+  const questions = [];
+  videos.forEach(video => {
+    const videoConfig = EXPERIMENT_CONFIG.videos.find(v => v.id === video.id);
+    
+    // 收集所有temporal问题（6个），随机排序
+    const allTemporalQuestions = [];
+    videoConfig.temporalCategories.forEach(category => {
+      category.questions.forEach(question => {
+        allTemporalQuestions.push({
+          type: 'temporal',
+          category: category.name,
+          videoId: video.id,
+          ...question
+        });
+      });
+    });
+    shuffleArray(allTemporalQuestions).forEach(q => questions.push(q));
+    
+    // 3-AFC问题，随机排序
+    const afcQuestions = [...videoConfig.afcQuestions];
+    shuffleArray(afcQuestions).forEach(q => {
+      questions.push({
+        type: 'afc',
+        videoId: video.id,
+        ...q
+      });
+    });
+  });
+  
+  return {
+    versionOrder,
+    firstWatchOrder: firstWatchOrder.map(v => v.id),
+    secondWatchOrder: secondWatchOrder.map(v => v.id),
+    trials,
+    questions,
+    generatedAt: new Date().toISOString(),
+    configVersion: EXPERIMENT_CONFIG.version || '1.0'
+  };
+}
+
+// ====== 数据管理 ======
+function saveProgress() {
+  const progress = {
+    participantData,
+    experimentData,
+    responseData,
+    currentTrialIndex,
+    currentQuestionIndex,
+    savedAt: new Date().toISOString()
+  };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+}
+
+function loadProgress() {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  return saved ? JSON.parse(saved) : null;
+}
+
+function clearProgress() {
+  localStorage.removeItem(STORAGE_KEY);
+}
+
+// ====== 同意书页面 ======
+document.getElementById('agreeBtn').addEventListener('click', function() {
+  const participantId = document.getElementById('participantName').value.trim();
+  
+  if (!participantId) {
+    alert('请输入参与者编号');
+    return;
+  }
+  
+  participantData = {
+    participantId: participantId,
+    startTime: new Date().toISOString()
+  };
+  
+  // 生成实验数据
+  experimentData = generateRandomizedExperiment();
+  
+  // 保存到本地存储
+  saveProgress();
+  
+  // 隐藏同意书，开始实验
+  document.getElementById('consent').style.display = 'none';
+  startVideoPhase();
+});
+
+// ====== 视频播放阶段 ======
+function startVideoPhase() {
+  document.getElementById('videoContainer').style.display = 'flex';
+  playNextVideo();
+}
+
+function playNextVideo() {
+  if (currentTrialIndex >= experimentData.trials.length) {
+    endVideoPhase();
+    return;
+  }
+  
+  const trial = experimentData.trials[currentTrialIndex];
+  
+  // 更新显示信息（只显示进度，不显示内容信息）
+  document.getElementById('currentVideoNum').textContent = currentTrialIndex + 1;
+  
+  // 设置视频源
+  const videoPlayer = document.getElementById('videoPlayer');
+  videoPlayer.src = trial.path;
+  videoPlayer.currentTime = 0;
+  
+  // 显示提示
+  const prompt = document.getElementById('prompt');
+  prompt.innerHTML = `第 ${currentTrialIndex + 1} 个视频<br>请集中注意力观看<br>准备好后按任意键开始`;
+  prompt.style.display = 'block';
+  videoPlayer.style.display = 'none';
+  
+  // 等待用户按键开始
+  const startHandler = () => {
+    document.removeEventListener('keydown', startHandler);
+    prompt.style.display = 'none';
+    videoPlayer.style.display = 'block';
+    
+    // 记录开始时间
+    trial.startTime = new Date().toISOString();
+    
+    // 播放视频
+    videoPlayer.play();
+    
+    // 3分钟后自动结束
+    setTimeout(() => {
+      if (!videoPlayer.ended) {
+        videoPlayer.pause();
+        endCurrentVideo();
+      }
+    }, trial.duration * 1000);
+  };
+  
+  document.addEventListener('keydown', startHandler);
+  
+  // 视频结束事件
+  videoPlayer.onended = endCurrentVideo;
+}
+
+function endCurrentVideo() {
+  const trial = experimentData.trials[currentTrialIndex];
+  trial.endTime = new Date().toISOString();
+  
+  // 保存观看数据
+  responseData.push({
+    type: 'video_watching',
+    trialIndex: currentTrialIndex,
+    videoId: trial.videoId,
+    version: trial.version,
+    watchNumber: trial.watchNumber,
+    startTime: trial.startTime,
+    endTime: trial.endTime
+  });
+  
+  saveProgress();
+  
+  // 如果不是最后一个视频，显示休息倒计时
+  if (currentTrialIndex < experimentData.trials.length - 1) {
+    showRestTimer();
+  } else {
+    playNextVideo();
+  }
+}
+
+function showRestTimer() {
+  const restTimer = document.getElementById('restTimer');
+  restTimer.style.display = 'block';
+  
+  let timeLeft = REST_DURATION;
+  restTimer.textContent = `休息 ${timeLeft} 秒`;
+  
+  const timer = setInterval(() => {
+    timeLeft--;
+    restTimer.textContent = `休息 ${timeLeft} 秒`;
+    
+    if (timeLeft <= 0) {
+      clearInterval(timer);
+      restTimer.style.display = 'none';
+      currentTrialIndex++;
+      playNextVideo();
+    }
+  }, 1000);
+}
+
+function endVideoPhase() {
+  document.getElementById('videoContainer').style.display = 'none';
+  startTestPhase();
+}
+
+// ====== 测试阶段 ======
+function startTestPhase() {
+  document.getElementById('testContainer').style.display = 'block';
+  document.getElementById('totalQuestions').textContent = experimentData.questions.length;
+  showNextQuestion();
+}
+
+function showNextQuestion() {
+  if (currentQuestionIndex >= experimentData.questions.length) {
+    endTestPhase();
+    return;
+  }
+  
+  const question = experimentData.questions[currentQuestionIndex];
+  questionStartTime = Date.now();
+  
+  // 更新进度显示
+  document.getElementById('currentQuestionNum').textContent = currentQuestionIndex + 1;
+  document.querySelector('.progress-fill').style.width = 
+    `${((currentQuestionIndex + 1) / experimentData.questions.length) * 100}%`;
+  
+  // 隐藏所有问题容器
+  document.querySelectorAll('.question-container').forEach(el => {
+    el.style.display = 'none';
+  });
+  
+  // 显示对应类型的问题
+  if (question.type === 'temporal') {
+    showTemporalQuestion(question);
+  } else {
+    showAfcQuestion(question);
+  }
+}
+
+function showTemporalQuestion(question) {
+  const container = document.getElementById('temporalQuestion');
+  const imgA = document.getElementById('temporalImgA');
+  const imgB = document.getElementById('temporalImgB');
+  
+  // 设置图片
+  imgA.src = question.frameA;
+  imgB.src = question.frameB;
+  
+  // 重置选择状态
+  document.querySelectorAll('.option').forEach(opt => {
+    opt.classList.remove('selected');
+  });
+  
+  const confirmBtn = document.getElementById('confirmTemporalBtn');
+  confirmBtn.disabled = true;
+  
+  // 显示容器
+  container.style.display = 'block';
+  
+  // 设置事件监听
+  const options = document.querySelectorAll('#temporalQuestion .option');
+  options.forEach(opt => {
+    opt.onclick = function() {
+      options.forEach(o => o.classList.remove('selected'));
+      this.classList.add('selected');
+      confirmBtn.disabled = false;
+    };
+  });
+  
+  confirmBtn.onclick = function() {
+    const selected = document.querySelector('#temporalQuestion .option.selected');
+    if (selected) {
+      recordResponse(question, selected.dataset.value);
+    }
+  };
+}
+
+function showAfcQuestion(question) {
+  const container = document.getElementById('afcQuestion');
+  const questionText = document.getElementById('afcQuestionText');
+  const imgA = document.getElementById('afcImgA');
+  const imgB = document.getElementById('afcImgB');
+  const imgC = document.getElementById('afcImgC');
+  
+  // 设置问题和图片
+  questionText.textContent = question.question;
+  imgA.src = question.options[0].image;
+  imgB.src = question.options[1].image;
+  imgC.src = question.options[2].image;
+  
+  // 重置选择状态
+  document.querySelectorAll('.option').forEach(opt => {
+    opt.classList.remove('selected');
+  });
+  
+  const confirmBtn = document.getElementById('confirmAfcBtn');
+  confirmBtn.disabled = true;
+  
+  // 显示容器
+  container.style.display = 'block';
+  
+  // 设置事件监听
+  const options = document.querySelectorAll('#afcQuestion .option');
+  options.forEach(opt => {
+    opt.onclick = function() {
+      options.forEach(o => o.classList.remove('selected'));
+      this.classList.add('selected');
+      confirmBtn.disabled = false;
+    };
+  });
+  
+  confirmBtn.onclick = function() {
+    const selected = document.querySelector('#afcQuestion .option.selected');
+    if (selected) {
+      recordResponse(question, selected.dataset.value);
+    }
+  };
+}
+
+function recordResponse(question, selectedAnswer) {
+  const reactionTime = Date.now() - questionStartTime;
+  const isCorrect = selectedAnswer === question.correct;
+  
+  responseData.push({
+    type: 'question_response',
+    questionIndex: currentQuestionIndex,
+    questionType: question.type,
+    videoId: question.videoId,
+    category: question.category || null,
+    questionId: question.id,
+    selectedAnswer,
+    correctAnswer: question.correct,
+    isCorrect,
+    reactionTime,
+    responseTime: new Date().toISOString()
+  });
+  
+  saveProgress();
+  currentQuestionIndex++;
+  showNextQuestion();
+}
+
+function endTestPhase() {
+  document.getElementById('testContainer').style.display = 'none';
+  showCompletionPage();
+}
+
+// ====== 完成页面 ======
+async function showCompletionPage() {
+  document.getElementById('completion').style.display = 'flex';
+  
+  // 上传数据到Netlify
+  const uploadSuccess = await uploadDataToNetlify();
+  
+  // 显示倒计时
+  let timeLeft = 5;
+  const countdownEl = document.getElementById('countdown');
+  const timer = setInterval(() => {
+    timeLeft--;
+    countdownEl.textContent = timeLeft;
+    
+    if (timeLeft <= 0) {
+      clearInterval(timer);
+      document.getElementById('waitMsg').style.display = 'none';
+      document.getElementById('finalMsg').style.display = 'block';
+    }
+  }, 1000);
+  
+  // 清理本地存储
+  clearProgress();
+}
+
+// ====== Netlify数据上传 ======
+async function uploadDataToNetlify() {
+  if (isUploading) return false;
+  isUploading = true;
+  
+  try {
+    // 准备所有数据
+    const allData = {
+      participantData,
+      experimentData: {
+        versionOrder: experimentData.versionOrder,
+        firstWatchOrder: experimentData.firstWatchOrder,
+        secondWatchOrder: experimentData.secondWatchOrder,
+        generatedAt: experimentData.generatedAt,
+        configVersion: experimentData.configVersion
+      },
+      responseData,
+      completionTime: new Date().toISOString()
+    };
+    
+    const formData = new FormData();
+    formData.append('form-name', EXPERIMENT_CONFIG.netlifyForm.name || 'memory-task-pilot');
+    formData.append('participant_id', participantData.participantId);
+    formData.append('experiment_data', JSON.stringify(experimentData));
+    formData.append('response_data', JSON.stringify(responseData));
+    formData.append(EXPERIMENT_CONFIG.netlifyForm.honeypotField || 'bot-field', '');
+    
+    const response = await fetch('/', {
+      method: 'POST',
+      body: formData
+    });
+    
+    if (response.ok) {
+      console.log('✅ 数据已成功提交到Netlify');
+      return true;
+    } else {
+      console.error('❌ Netlify提交失败:', response.status);
+      return false;
+    }
+  } catch (error) {
+    console.error('❌ 上传数据时出错:', error);
+    return false;
+  } finally {
+    isUploading = false;
+  }
+}
+
+// ====== 页面加载时检查进度 ======
+window.addEventListener('DOMContentLoaded', () => {
+  // 检查是否已加载配置文件
+  if (typeof EXPERIMENT_CONFIG === 'undefined') {
+    alert('实验配置加载失败，请刷新页面重试。');
+    return;
+  }
+  
+  const savedProgress = loadProgress();
+  
+  if (savedProgress) {
+    // 询问是否继续之前的进度
+    const shouldContinue = confirm('检测到未完成的实验，是否继续？\n点击"确定"继续，点击"取消"开始新实验');
+    
+    if (shouldContinue) {
+      participantData = savedProgress.participantData;
+      experimentData = savedProgress.experimentData;
+      responseData = savedProgress.responseData;
+      currentTrialIndex = savedProgress.currentTrialIndex;
+      currentQuestionIndex = savedProgress.currentQuestionIndex;
+      
+      // 预填参与者编号
+      document.getElementById('participantName').value = participantData.participantId || '';
+      
+      // 根据进度跳转到相应阶段
+      if (currentTrialIndex < experimentData.trials.length) {
+        // 还在视频阶段
+        document.getElementById('consent').style.display = 'none';
+        startVideoPhase();
+      } else if (currentQuestionIndex < experimentData.questions.length) {
+        // 在测试阶段
+        document.getElementById('consent').style.display = 'none';
+        document.getElementById('videoContainer').style.display = 'none';
+        startTestPhase();
+      }
+    } else {
+      clearProgress();
+    }
+  }
+});
+</script>
+</body>
+</html>
