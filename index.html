@@ -621,11 +621,16 @@ function endCurrentVideo() {
   
   saveProgress();
   
-  // 如果不是最后一个视频，显示休息倒计时
-  if (currentTrialIndex < experimentData.trials.length - 1) {
+  // 判断是否是最后一个视频
+  const isLastVideo = currentTrialIndex === experimentData.trials.length - 1;
+  
+  if (!isLastVideo) {
+    // 不是最后一个视频：显示休息倒计时
     showRestTimer();
   } else {
-    playNextVideo();
+    // 是最后一个视频：直接进入测试阶段
+    // 注意：这里不要增加currentTrialIndex，因为已经到末尾了
+    endVideoPhase();
   }
 }
 
@@ -643,10 +648,10 @@ function showRestTimer() {
     if (timeLeft <= 0) {
       clearInterval(timer);
       restTimer.style.display = 'none';
-      currentTrialIndex++;
+      currentTrialIndex++;  // 增加视频索引
       playNextVideo();
     }
-  }, 1000);
+  }, 300); // 1000 --- test 300
 }
 
 function endVideoPhase() {
