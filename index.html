@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>视觉记忆实验</title>
+<title>memory-task-pilot</title>
 <style>
   body {
     margin: 0;
@@ -294,8 +294,8 @@
     </div>
     
     <div class="input-group">
-      <label for="participantName" style="color: #4CAF50;">参与者编号：</label>
-      <input type="text" id="participantName" placeholder="请输入分配给你的编号">
+      <label for="participantName" style="color: #4CAF50;">姓名：</label>
+      <input type="text" id="participantName" placeholder="请输入分你的姓名">
     </div>
     
     <div style="margin-top: 30px; text-align: center;">
@@ -556,7 +556,7 @@ document.getElementById('agreeBtn').addEventListener('click', function() {
   const participantId = document.getElementById('participantName').value.trim();
   
   if (!participantId) {
-    alert('请输入参与者编号');
+    alert('请输入姓名');
     return;
   }
   
@@ -678,7 +678,7 @@ function showRestTimer() {
       currentTrialIndex++;  // 增加视频索引
       playNextVideo();
     }
-  }, 300); // 1000 --- test 300
+  }, 1000); // 1000 --- test 300
 }
 
 function endVideoPhase() {
