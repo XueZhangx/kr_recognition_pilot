@@ -73,7 +73,7 @@ const EXPERIMENT_CONFIG = {
       afcQuestions: [
         { 
           id: "a1", 
-          question: "In this story, who is the character being helped?", 
+          question: "이 이야기에서 도움을 받고 있는 캐릭터는 누구입니까?", 
           options: [
             { id: "A", image: "stimuli/afc/Caterpillar/q1/bug2.png" },
             { id: "B", image: "stimuli/afc/Caterpillar/q1/caterpillar.png" },
@@ -83,7 +83,7 @@ const EXPERIMENT_CONFIG = {
         },
         { 
           id: "a2", 
-          question: "When two beetles encounter the caterpillar, what is the caterpillar doing?", 
+          question: "두 마리의 딱정벌레가 애벌레를 만났을 때, 애벌레는 무엇을 하고 있었습니까?", 
           options: [
             { id: "A", image: "stimuli/afc/Caterpillar/q2/squeezing.png" },
             { id: "B", image: "stimuli/afc/Caterpillar/q2/standing.png" },
@@ -93,7 +93,7 @@ const EXPERIMENT_CONFIG = {
         },
         { 
           id: "a3", 
-          question: "When the butterfly flew away, what were the two beetles doing?", 
+          question: "나비가 날아갔을 때, 두 마리의 딱정벌레는 무엇을 하고 있었습니까?", 
           options: [
             { id: "A", image: "stimuli/afc/Caterpillar/q3/position1.png" },
             { id: "B", image: "stimuli/afc/Caterpillar/q3/position2.png" },
@@ -167,7 +167,7 @@ const EXPERIMENT_CONFIG = {
       afcQuestions: [
         { 
           id: "a1", 
-          question: "Which character's component has fallen off?", 
+          question: "어떤 캐릭터의 부품이 떨어졌습니까?", 
           options: [
             { id: "A", image: "stimuli/afc/Clocky/q2/clock.png" },
             { id: "B", image: "stimuli/afc/Clocky/q2/clock2.png" },
@@ -177,7 +177,7 @@ const EXPERIMENT_CONFIG = {
         },
         { 
           id: "a2", 
-          question: "In this video, What are the fallen component?", 
+          question: "떨어진 부품은 무엇입니까?", 
           options: [
             { id: "A", image: "stimuli/afc/Clocky/q1/pointer.png" },
             { id: "B", image: "stimuli/afc/Clocky/q1/spring.png" },
@@ -187,7 +187,7 @@ const EXPERIMENT_CONFIG = {
         },
         { 
           id: "a3", 
-          question: "Where did the components fall?", 
+          question: "부품은 어디로 떨어졌습니까?", 
           options: [
             { id: "A", image: "stimuli/afc/Clocky/q3/bed.png" },
             { id: "B", image: "stimuli/afc/Clocky/q3/floor.png" },
@@ -261,7 +261,7 @@ const EXPERIMENT_CONFIG = {
       afcQuestions: [
         { 
           id: "a1", 
-          question: "Where did the little rabbits gather when the cleaner showed up?", 
+          question: "청소기가 나타났을 때, 작은 토끼들은 어디에 모였습니까?", 
           options: [
             { id: "A", image: "stimuli/afc/Dustbunnies/q1/biscuit.png" },
             { id: "B", image: "stimuli/afc/Dustbunnies/q1/machine.png" },
@@ -271,7 +271,7 @@ const EXPERIMENT_CONFIG = {
         },
         { 
           id: "a2", 
-          question: "Who unplugged the vacuum cleaner?", 
+          question: "누가 진공 청소기의 플러그를 뽑았습니까?", 
           options: [
             { id: "A", image: "stimuli/afc/Dustbunnies/q2/bunny2.png" },
             { id: "B", image: "stimuli/afc/Dustbunnies/q2/cleaner.png" },
@@ -281,7 +281,7 @@ const EXPERIMENT_CONFIG = {
         },
         { 
           id: "a3", 
-          question: "Who get into the vacuum cleaner through the pipe?", 
+          question: "누가 진공 청소기 호스를 통해 청소기 안으로 들어갔습니까?", 
           options: [
             { id: "A", image: "stimuli/afc/Dustbunnies/q3/bunny1.png" },
             { id: "B", image: "stimuli/afc/Dustbunnies/q3/bunnies.png" },
@@ -355,7 +355,7 @@ const EXPERIMENT_CONFIG = {
       afcQuestions: [
         { 
           id: "a1", 
-          question: "Which character caused the little mouse to fall off the branch?", 
+          question: "어떤 캐릭터 때문에 작은 쥐가 나뭇가지에서 떨어졌습니까?", 
           options: [
             { id: "A", image: "stimuli/afc/Foxmouse/q1/blue_owl.png" },
             { id: "B", image: "stimuli/afc/Foxmouse/q1/red_owl.png" },
@@ -365,7 +365,7 @@ const EXPERIMENT_CONFIG = {
         },
         { 
           id: "a2", 
-          question: "What were the two owls doing when the fox appeared?", 
+          question: "여우가 나타났을 때, 두 마리의 부엉이는 무엇을 하고 있었습니까?", 
           options: [
             { id: "A", image: "stimuli/afc/Foxmouse/q2/flying.png" },
             { id: "B", image: "stimuli/afc/Foxmouse/q2/sleeping.png" },
@@ -375,7 +375,7 @@ const EXPERIMENT_CONFIG = {
         },
         { 
           id: "a3", 
-          question: "Where was the little mouse before the owls woke up?", 
+          question: "부엉이들이 깨어나기 전에 작은 쥐는 어디에 있었습니까?", 
           options: [
             { id: "A", image: "stimuli/afc/Foxmouse/q3/snow.png" },
             { id: "B", image: "stimuli/afc/Foxmouse/q3/trunk.png" },
@@ -395,10 +395,10 @@ const EXPERIMENT_CONFIG = {
   
   // 实验说明
   instructions: {
-    consentTitle: "视觉记忆心理学实验",
-    consentText: "在参与实验前，请仔细阅读以下内容...",
-    videoPhase: "视频观看阶段",
-    testPhase: "测试阶段"
+    consentTitle: "시각 기억 심리학 실험",
+    consentText: "실험 참여 전에 다음 내용을 자세히 읽어주세요...",
+    videoPhase: "동영상 시청 단계",
+    testPhase: "테스트 단계"
   }
 };
 

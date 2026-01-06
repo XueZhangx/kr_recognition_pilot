@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="ko">
 <head>
 <meta charset="UTF-8">
 <title>memory-task-pilot</title>
@@ -8,9 +8,10 @@
     margin: 0;
     background: #000;
     color: #fff;
-    font-family: 'Microsoft YaHei', 'SimHei', Arial, sans-serif;
+    font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', 'Nanum Gothic', Dotum, Arial, sans-serif;
     overflow-x: hidden;
   }
+  
   
   /* 同意书页面 */
   #consent {
@@ -273,33 +274,33 @@
 <!-- 1. 同意书页面 -->
 <div id="consent">
   <div class="consent-content">
-    <h2>视觉记忆实验</h2>
-    <p>感谢您参与本次心理学实验！</p>
+    <h2>시각 기억 실험</h2>
+    <p>실험에 참여해 주셔서 감사합니다!</p>
     
     <div style="background:#333;padding:15px;border-radius:5px;margin:20px 0;">
-      <h3 style="margin-top:0;">实验流程：</h3>
+      <h3 style="margin-top:0;">실험 진행 절차:</h3>
       <ol style="line-height: 1.6;">
-        <li><strong>第一阶段：观看视频</strong>：观看8个短视频（每个约3分钟）</li>
-        <li><strong>第二阶段：回答问题</strong>：回答关于视频内容的记忆测试题</li>
+        <li><strong>1단계: 동영상 시청</strong>: 8개의 짧은 동영상을 시청합니다 (각 동영상 약 3분)</li>
+        <li><strong>2단계: 문제 풀이</strong>: 동영상 내용에 관한 기억력 테스트 문제를 풉니다</li>
       </ol>
       
-      <h3>注意事项：</h3>
+      <h3>주의사항:</h3>
       <ul style="line-height: 1.6;">
-        <li>请在安静、无干扰的环境下完成实验</li>
-        <li>实验大约需要40-50分钟</li>
-        <li>请确保网络连接稳定</li>
-        <li>实验中途不要刷新或关闭页面</li>
-        <li>请集中注意力观看视频</li>
+        <li>조용하고 방해받지 않는 환경에서 실험을 진행해 주세요</li>
+        <li>실험은 약 40-50분 정도 소요됩니다</li>
+        <li>안정적인 인터넷 연결을 확인해 주세요</li>
+        <li>실험 중에는 페이지를 새로고침하거나 닫지 마세요</li>
+        <li>동영상 내용에 집중해서 시청해 주세요</li>
       </ul>
     </div>
     
     <div class="input-group">
-      <label for="participantName" style="color: #4CAF50;">姓名：</label>
-      <input type="text" id="participantName" placeholder="请输入分你的姓名">
+      <label for="participantName" style="color: #4CAF50;">참가자 이름:</label>
+      <input type="text" id="participantName" placeholder="이름을 입력해 주세요">
     </div>
     
     <div style="margin-top: 30px; text-align: center;">
-      <button id="agreeBtn">我同意并开始实验</button>
+      <button id="agreeBtn">동의하고 실험 시작</button>
     </div>
   </div>
 </div>
@@ -307,7 +308,7 @@
 <!-- 2. 视频播放阶段 -->
 <div id="videoContainer">
   <div id="progressInfo">
-    进度: <span id="currentVideoNum">0</span>/8
+    진행도: <span id="currentVideoNum">0</span>/8
   </div>
   
   <div id="videoBox">
@@ -316,19 +317,19 @@
   
   <div id="restTimer"></div>
   
-  <div id="prompt">加载中...</div>
+  <div id="prompt">로딩 중...</div>
 </div>
 
 <!-- 过渡页面 -->
 <div id="transitionPage" style="display: none;">
   <div style="text-align: center; padding: 50px;">
-    <h2>视频观看阶段已完成</h2>
-    <p style="font-size: 24px; margin: 30px 0;">接下来是记忆测试部分</p>
-    <p style="font-size: 20px; color: #FF9800;">请准备好后按任意键开始测试</p>
+    <h2>동영상 시청 단계 완료</h2>
+    <p style="font-size: 24px; margin: 30px 0;">다음은 기억력 테스트 단계입니다</p>
+    <p style="font-size: 20px; color: #FF9800;">준비되면 아무 키나 눌러 테스트를 시작하세요</p>
     <p style="font-size: 16px; color: #ccc; margin-top: 30px;">
-      测试包含两种类型的问题：<br>
-      1. 时序判断：选择哪个画面先出现<br>
-      2. 三选一：根据问题选择正确答案
+      테스트는 두 가지 유형의 문제로 구성됩니다:<br>
+      1. 시간 순서 판단: 어떤 장면이 먼저 나타났는지 선택<br>
+      2. 객관식 선택: 문제 설명에 맞는 정답 선택
     </p>
   </div>
 </div>
@@ -339,23 +340,23 @@
     <div class="progress-fill"></div>
   </div>
   <div class="progress-text">
-    题目进度: <span id="currentQuestionNum">0</span>/<span id="totalQuestions">0</span>
+    문제 진행: <span id="currentQuestionNum">0</span>/<span id="totalQuestions">0</span>
   </div>
   
   <!-- Temporal Order 题目 -->
   <div id="temporalQuestion" class="question-container">
-    <div class="question-text">哪个画面先出现？</div>
+    <div class="question-text">어떤 장면이 먼저 나타났습니까?</div>
     <div class="temporal-options">
       <div class="option" data-value="A">
-        <img id="temporalImgA" src="" alt="选项A">
+        <img id="temporalImgA" src="" alt="옵션 A">
         <div class="option-label"> </div>
       </div>
       <div class="option" data-value="B">
-        <img id="temporalImgB" src="" alt="选项B">
+        <img id="temporalImgB" src="" alt="옵션 B">
         <div class="option-label"> </div>
       </div>
     </div>
-    <button id="confirmTemporalBtn" class="confirm-btn" disabled>确认选择</button>
+    <button id="confirmTemporalBtn" class="confirm-btn" disabled>선택 확인</button>
   </div>
   
   <!-- 3-AFC 题目 -->
@@ -375,20 +376,21 @@
         <div class="option-label"> </div>
       </div>
     </div>
-    <button id="confirmAfcBtn" class="confirm-btn" disabled>确认选择</button>
+    <button id="confirmAfcBtn" class="confirm-btn" disabled>선택 확인</button>
   </div>
 </div>
 
 <!-- 4. 完成页面 -->
 <div id="completion">
-  <h2>实验完成！</h2>
+  <h2>실험 완료!</h2>
   <div id="waitMsg" class="wait-warning">
-    数据正在提交，请勿关闭页面... <span id="countdown" style="font-size: 24px; color: white;">5</span>
+    데이터를 제출하는 중입니다. 페이지를 닫지 마세요... <span id="countdown" style="font-size: 24px; color: white;">5</span>
   </div>
   <div id="finalMsg" class="success-msg" style="display: none;">
-    ✅ 数据已成功提交，感谢您的参与！
+    ✅ 데이터가 성공적으로 제출되었습니다. 참여해 주셔서 감사합니다!
   </div>
 </div>
+
 
 <!-- Netlify Form -->
 <form id="netlify-data-form" style="display: none;" netlify netlify-honeypot="bot-field" name="memory-task-pilot">
@@ -556,7 +558,7 @@ document.getElementById('agreeBtn').addEventListener('click', function() {
   const participantId = document.getElementById('participantName').value.trim();
   
   if (!participantId) {
-    alert('请输入姓名');
+    alert('이름을 입력해 주세요');
     return;
   }
   
@@ -600,7 +602,7 @@ function playNextVideo() {
   
   // 显示提示
   const prompt = document.getElementById('prompt');
-  prompt.innerHTML = `第 ${currentTrialIndex + 1} 个视频<br>请集中注意力观看<br>准备好后按任意键开始`;
+  prompt.innerHTML = `${currentTrialIndex + 1}번째 동영상<br>집중해서 시청해 주세요<br>준비되면 아무 키나 누르세요`;
   prompt.style.display = 'block';
   videoPlayer.style.display = 'none';
   
@@ -666,11 +668,13 @@ function showRestTimer() {
   restTimer.style.display = 'block';
   
   let timeLeft = REST_DURATION;
-  restTimer.textContent = `休息 ${timeLeft} 秒`;
+  restTimer.textContent = `휴식 ${timeLeft}초`;
+//   restTimer.textContent = `休息 ${timeLeft} 秒`;
   
   const timer = setInterval(() => {
     timeLeft--;
-    restTimer.textContent = `休息 ${timeLeft} 秒`;
+    restTimer.textContent = `휴식 ${timeLeft}초`;
+    // restTimer.textContent = `休息 ${timeLeft} 秒`;
     
     if (timeLeft <= 0) {
       clearInterval(timer);
@@ -1165,7 +1169,8 @@ window.addEventListener('DOMContentLoaded', () => {
   
   if (savedProgress) {
     // 询问是否继续之前的进度
-    const shouldContinue = confirm('检测到未完成的实验，是否继续？\n点击"确定"继续，点击"取消"开始新实验');
+    const shouldContinue = confirm('이전에 진행하던 실험이 있습니다. 계속하시겠습니까?\n확인: 이어서 진행\n취소: 새로 시작');
+    // const shouldContinue = confirm('检测到未完成的实验，是否继续？\n点击"确定"继续，点击"取消"开始新实验');
     
     if (shouldContinue) {
       participantData = savedProgress.participantData;
