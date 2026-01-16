@@ -2,7 +2,7 @@
 const EXPERIMENT_CONFIG = {
 
   restDuration: 10, 
-  videoDuration: 3,//180, // test -- 3 exp -- 180
+  videoDuration: 180, // test -- 3 exp -- 180
   
   // 存储键名
   storageKey: 'visual_memory_exp_v1',
