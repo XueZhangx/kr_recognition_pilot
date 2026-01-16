@@ -12,7 +12,6 @@
     overflow-x: hidden;
   }
   
-  
   /* 同意书页面 */
   #consent {
     position: fixed;
@@ -130,11 +129,11 @@
     margin: 40px 0;
   }
   
-  /* 3-AFC 选项（三张图片） */
+  /* 2-AFC 选项（两张图片） */
   .afc-options {
     display: flex;
     justify-content: center;
-    gap: 60px;
+    gap: 100px;
     margin: 40px 0;
   }
   
@@ -359,22 +358,19 @@
     <button id="confirmTemporalBtn" class="confirm-btn" disabled>선택 확인</button>
   </div>
   
-  <!-- 3-AFC 题目 -->
+  <!-- 2-AFC 题目 -->
   <div id="afcQuestion" class="question-container">
     <div class="question-text" id="afcQuestionText"></div>
     <div class="afc-options">
       <div class="option" data-value="A">
-        <img id="afcImgA" src="" alt="选项A">
+        <img id="afcImgA" src="" alt="옵션 A">
         <div class="option-label"> </div>
       </div>
       <div class="option" data-value="B">
-        <img id="afcImgB" src="" alt="选项B">
+        <img id="afcImgB" src="" alt="옵션 B">
         <div class="option-label"> </div>
       </div>
-      <div class="option" data-value="C">
-        <img id="afcImgC" src="" alt="选项C">
-        <div class="option-label"> </div>
-      </div>
+      <!-- 移除了第三个选项 -->
     </div>
     <button id="confirmAfcBtn" class="confirm-btn" disabled>선택 확인</button>
   </div>
@@ -618,13 +614,13 @@ function playNextVideo() {
     // 播放视频
     videoPlayer.play();
     
-    // // 3分钟后自动结束
-    // setTimeout(() => {
-    //   if (!videoPlayer.ended) {
-    //     videoPlayer.pause();
-    //     endCurrentVideo();
-    //   }
-    // }, trial.duration * 1000);
+    // 3分钟后自动结束
+    setTimeout(() => {
+      if (!videoPlayer.ended) {
+        videoPlayer.pause();
+        endCurrentVideo();
+      }
+    }, trial.duration * 1000);
   };
   
   document.addEventListener('keydown', startHandler);
@@ -669,12 +665,10 @@ function showRestTimer() {
   
   let timeLeft = REST_DURATION;
   restTimer.textContent = `휴식 ${timeLeft}초`;
-//   restTimer.textContent = `休息 ${timeLeft} 秒`;
   
   const timer = setInterval(() => {
     timeLeft--;
     restTimer.textContent = `휴식 ${timeLeft}초`;
-    // restTimer.textContent = `休息 ${timeLeft} 秒`;
     
     if (timeLeft <= 0) {
       clearInterval(timer);
@@ -779,13 +773,12 @@ function showAfcQuestion(question) {
   const questionText = document.getElementById('afcQuestionText');
   const imgA = document.getElementById('afcImgA');
   const imgB = document.getElementById('afcImgB');
-  const imgC = document.getElementById('afcImgC');
   
-  // 设置问题和图片
+  // 设置问题和图片（现在只有2个选项）
   questionText.textContent = question.question;
   imgA.src = question.options[0].image;
   imgB.src = question.options[1].image;
-  imgC.src = question.options[2].image;
+  // 不再设置第三个选项
   
   // 重置选择状态
   document.querySelectorAll('.option').forEach(opt => {
@@ -926,8 +919,6 @@ function calculateAccuracyStats() {
   
   return stats;
 }
-
-
 
 // ====== 完成页面 ======
 async function showCompletionPage() {
@@ -1170,7 +1161,6 @@ window.addEventListener('DOMContentLoaded', () => {
   if (savedProgress) {
     // 询问是否继续之前的进度
     const shouldContinue = confirm('이전에 진행하던 실험이 있습니다. 계속하시겠습니까?\n확인: 이어서 진행\n취소: 새로 시작');
-    // const shouldContinue = confirm('检测到未完成的实验，是否继续？\n点击"确定"继续，点击"取消"开始新实验');
     
     if (shouldContinue) {
       participantData = savedProgress.participantData;
