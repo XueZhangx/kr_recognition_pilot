@@ -220,7 +220,7 @@ const EXPERIMENT_CONFIG = {
           questions: [
             { 
               id: "TO_M3_003", 
-              frameA: "stimuli/temporal/Clocky/Boundary-Within/Clocky_B1_2.png", 
+              frameA: "stimuli/temporal/Clocky/Boundary-Within/Clocky_B8.png", 
               frameB: "stimuli/temporal/Clocky/Boundary-Within/Clocky_W8_1.png", 
               correct: "A" 
             },
